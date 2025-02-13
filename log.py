@@ -45,11 +45,13 @@ def log(message, error_level=level.info):
         colour = colours.FAIL
     elif error_level=="DEBUG":
         colour = colours.DEBUG
+
+    # note to self: python3.5 doesn't support f-strings
     
-    coloured_message=f"{datetime.now().strftime('%H:%M:%S')} -- ({colour}{error_level}{colours.ENDC}) {colour}{message}{colours.ENDC}"
+    coloured_message=datetime.now().strftime('%H:%M:%S') + " -- (" + colour + error_level + colours.ENDC + ") " + colour + message + colours.ENDC
     print(coloured_message)
 
-    normal_message=f"{datetime.now().strftime('%H:%M:%S')} -- ({error_level}) {message}"
+    normal_message=datetime.now().strftime('%H:%M:%S') + " -- (" + error_level + ") "+ message
     mod=open("log.txt","a")
     mod.write(normal_message+"\n")
 
@@ -58,10 +60,10 @@ def ask(message):
     error_level = "INPUT"
     colour = colours.OKBLUE
 
-    coloured_message=f"{datetime.now().strftime('%H:%M:%S')} -- ({colour}{error_level}{colours.ENDC}) {colour}{message}{colours.ENDC}\n"
+    coloured_message=datetime.now().strftime('%H:%M:%S') + " -- (" + colour + error_level + colours.ENDC + ") " + colour + message + colours.ENDC + "\n"
     answer=input(coloured_message)
 
-    normal_message=f"{datetime.now().strftime('%H:%M:%S')} -- ({error_level}) {message}\n{answer}"
+    normal_message=datetime.now().strftime('%H:%M:%S') + " -- (" + error_level + ") "+ message + "\n" + answer
     mod=open("log.txt","a")
     mod.write(normal_message+"\n")
     return answer
