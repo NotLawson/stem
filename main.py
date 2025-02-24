@@ -53,7 +53,8 @@ try:
         }
 
         if sensors.left() == "black":
-            engine.hard_left(50)
+            engine.stop()
+            engine.hard_left(25)
             data = {
                 "left": sensors.left(),
                 "right": sensors.right(),
@@ -63,7 +64,7 @@ try:
             }
             if SOCK:
                 connection.send(json.dumps(data).encode())
-            time.sleep(0.3)
+            time.sleep(0.1)
             engine.start()
             data = {
                 "left": sensors.left(),
@@ -72,8 +73,9 @@ try:
                 "rightengine": "100",
                 "mode": "linefollowing",
             }
-        elif sensors.right() == "black":    
-            engine.hard_right(50)
+        elif sensors.right() == "black":
+            engine.stop()    
+            engine.hard_right(25)
             data = {
                 "left": sensors.left(),
                 "right": sensors.right(),
@@ -83,7 +85,15 @@ try:
             }
             if SOCK:
                 connection.send(json.dumps(data).encode())
-            time.sleep(0.3)
+            time.sleep(0.1)
+            engine.start()
+        elif sensors.left() == "green":
+            # green dot
+            log.info("Green dot detected")
+            engine.stop()
+            engine.turn_left(5)
+            time.sleep(2)
+            engine.stop()
             engine.start()
         if SOCK:
             connection.send(json.dumps(data).encode())
