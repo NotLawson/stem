@@ -2,7 +2,7 @@ import ev3dev2.motor as motor
 import ev3dev2.sensor as sensor
 from ev3dev2.sensor.lego import ColorSensor, UltrasonicSensor
 
-import time, json
+import time, json, pickle
 
 if __name__ == "__main__":
     import log
@@ -57,10 +57,14 @@ class LineFollowerSensors:
     def __init__(self, left, right):
         self.leftsensor = ColorSensor(left)
         self.rightsensor = ColorSensor(right)
+        
+        with open("colours.pickle", "rb") as f:
+            self.cal = pickle.load(f)
+        
 
-        self.leftsensor.mode = "COL-REFLECT"
-        self.rightsensor.mode = "COL-REFLECT"
-
+        self.leftsensor.mode = "COL-COLOR"
+        self.rightsensor.mode = "COL-COLOR"
+    '''
     def left(self):
         reflected_light = self.leftsensor.reflected_light_intensity
 
@@ -87,25 +91,25 @@ class LineFollowerSensors:
     def right_raw(self):
         return self.rightsensor.reflected_light_intensity
             
-
-    """def left(self):
+    '''
+    def left(self):
         colour = self.leftsensor.color
         if colour == 0: # No colour found
             return "None"
         elif colour == 1: # Black
-            return "Black"
+            return "black"
         elif colour == 2: # Blue
-            return "Blue"
+            return "blue"
         elif colour == 3: # Green
-            return "Green"
+            return "green"
         elif colour == 4: # Yellow
-            return "Yellow"
+            return "yellow"
         elif colour == 5: # Red
-            return "Red"
+            return "red"
         elif colour == 6: # White
-            return "White"
+            return "white"
         elif colour == 7: # Brown
-            return "Brown"
+            return "brown"
         else: # lmao this should never pass
             return "string lmao"
     def left_raw(self):
@@ -117,19 +121,19 @@ class LineFollowerSensors:
         if colour == 0: # No colour found
             return "None"
         elif colour == 1: # Black
-            return "Black"
+            return "black"
         elif colour == 2: # Blue
-            return "Blue"
+            return "blue"
         elif colour == 3: # Green
-            return "Green"
+            return "gree"
         elif colour == 4: # Yellow
             return "Yellow"
         elif colour == 5: # Red
-            return "Red"
+            return "red"
         elif colour == 6: # White
-            return "White"
+            return "white"
         elif colour == 7: # Brown
-            return "Brown"
+            return "brown"
         else: # lmao this should never pass
             return "string lmao"
     def right_raw(self):
@@ -139,28 +143,26 @@ class LineFollowerSensors:
     def left2(self):
         raw = self.left_raw()
 
-        if raw[0] in self.cal["black"]["r"] and raw[1] in self.cal["black"]["g"] and raw[2] in self.cal["black"]["b"]:
-            return "Black"
-        elif raw[0] in self.cal["green"]["r"] and raw[1] in self.cal["green"]["g"] and raw[2] in self.cal["green"]["b"]:
-            return "Green"
-        elif raw[0] in self.cal["white"]["r"] and raw[1] in self.cal["white"]["g"] and raw[2] in self.cal["white"]["b"]:
-            return "White"
+        if raw[0] in range(self.cal["black"]["min"][0], self.cal["black"]["max"][0]) and raw[1] in range(self.cal["black"]["min"][1], self.cal["black"]["max"][1]) and raw[2] in range(self.cal["black"]["min"][2], self.cal["black"]["max"][2]):
+            return "black"
+        elif raw[0] in range(self.cal["green"]["min"][0], self.cal["green"]["max"][0]) and raw[1] in range(self.cal["green"]["min"][1], self.cal["green"]["max"][1]) and raw[2] in range(self.cal["green"]["min"][2], self.cal["green"]["max"][2]):
+            return "gree"
+        elif raw[0] in range(self.cal["white"]["min"][0], self.cal["white"]["max"][0]) and raw[1] in range(self.cal["white"]["min"][1], self.cal["white"]["max"][1]) and raw[2] in range(self.cal["white"]["min"][2], self.cal["white"]["max"][2]):
+            return "white"
         else:
             return "None"
         
     def right2(self):
         raw = self.right_raw()
 
-        if raw[0] in self.cal["black"]["r"] and raw[1] in self.cal["black"]["g"] and raw[2] in self.cal["black"]["b"]:
-            return "Black"
-        elif raw[0] in self.cal["green"]["r"] and raw[1] in self.cal["green"]["g"] and raw[2] in self.cal["green"]["b"]:
-            return "Green"
-        elif raw[0] in self.cal["white"]["r"] and raw[1] in self.cal["white"]["g"] and raw[2] in self.cal["white"]["b"]:
-            return "White"
+        if raw[0] in range(self.cal["black"]["min"][0], self.cal["black"]["max"][0]) and raw[1] in range(self.cal["black"]["min"][1], self.cal["black"]["max"][1]) and raw[2] in range(self.cal["black"]["min"][2], self.cal["black"]["max"][2]):
+            return "black"
+        elif raw[0] in range(self.cal["green"]["min"][0], self.cal["green"]["max"][0]) and raw[1] in range(self.cal["green"]["min"][1], self.cal["green"]["max"][1]) and raw[2] in range(self.cal["green"]["min"][2], self.cal["green"]["max"][2]):
+            return "gree"
+        elif raw[0] in range(self.cal["white"]["min"][0], self.cal["white"]["max"][0]) and raw[1] in range(self.cal["white"]["min"][1], self.cal["white"]["max"][1]) and raw[2] in range(self.cal["white"]["min"][2], self.cal["white"]["max"][2]):
+            return "white"
         else:
             return "None"
 
 
-        
-        
-"""
+    
