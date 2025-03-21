@@ -1,25 +1,15 @@
 #! /usr/bin/python3
 
-import log, sys
+import log,sys,time
 log.info("Linefollower Robot - STEM")
 
-
-SOCK = False
-if len(sys.argv) == 2:
-    if "debug" in sys.argv :
+if len(sys.argv) > 1:
+    if sys.argv[1] == "debug":
         log.DEBUG = True
-        log.debug("Debug mode enabled")
-    elif "socket" in sys.argv:
-        import socket
-        log.info("Starting socket server on :8089")
-        serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        serversocket.bind(('localhost', 8089))
-        serversocket.listen(1)
-        log.info("Waiting for connection...")
-        connection, address = serversocket.accept()
-        log.done("Connected to "+str(address)+"! The dashboard is now available!")
-        SOCK = True
-        
+        log.info("Debug mode enabled")
+    else:
+        log.error("Invalid argument: "+sys.argv[1])
+        sys.exit(1)
 
 log.debug("Loading Robot...")
 from robot import *
@@ -43,63 +33,67 @@ log.info("Starting Linefollower, press CTRL+C to stop")
 
 try:
     engine.start()
+    starttime = time.time()
     while True:
-        data = {
-            "left": sensors.left(),
-            "right": sensors.right(),
-            "leftengine": "100",
-            "rightengine": "100",
-            "mode": "linefollowing",
-        }
-
-        if sensors.left() == "black":
+        left = sensors.left()
+        right = sensors.right()
+        if not log.DEBUG:
+            sys.stdout.write("L: "+str(left)+"   R: "+str(right)+"     Time: "+str(int(time.time()-starttime))+"          \r")
+        
+        if (left == "green" and right == "green"):
             engine.stop()
+            # finished
+            log.info("Finished line, stopping")
+            break
+        elif left == "black":
+            engine.stop()
+            r = sensors.left_reflect()
+            if (50 < r):
+                log.info("Silver strip detected")
+                # seen silver strip, orientate...
+                while True:
+                    if sensors.right_reflect() > 50:
+                        break
+                    engine.hard_left(1)
+                # orientated, exit loop
+                break
+                
+
             engine.hard_left(25)
-            data = {
-                "left": sensors.left(),
-                "right": sensors.right(),
-                "leftengine": "50",
-                "rightengine": "25",
-                "mode": "linefollowing",
-            }
-            if SOCK:
-                connection.send(json.dumps(data).encode())
             time.sleep(0.1)
             engine.start()
-            data = {
-                "left": sensors.left(),
-                "right": sensors.right(),
-                "leftengine": "100",
-                "rightengine": "100",
-                "mode": "linefollowing",
-            }
-        elif sensors.right() == "black":
-            engine.stop()    
+        elif right == "black":
+            engine.stop()
+            r = sensors.right_reflect()
+            if (50 < r):
+                log.info("Silver strip detected")
+                # seen silver strip, orientate... 
+                if sensors.left_reflect() > 50:
+                        break
+                while True:
+                    if sensors.right_reflect() > 50:
+                        break
+                    engine.hard_left(1)
+                # orientated, exit loop
+                break
+
+             
             engine.hard_right(25)
-            data = {
-                "left": sensors.left(),
-                "right": sensors.right(),
-                "leftengine": "25",
-                "rightengine": "50",
-                "mode": "linefollowing",
-            }
-            if SOCK:
-                connection.send(json.dumps(data).encode())
             time.sleep(0.1)
             engine.start()
-        elif sensors.left() == "green":
+        elif left == "green":
             # green dot
-            log.info("Green dot detected")
             engine.stop()
             engine.turn_left(5)
-            time.sleep(2)
+            time.sleep(1)
             engine.stop()
             engine.start()
-        if SOCK:
-            connection.send(json.dumps(data).encode())
 
 except KeyboardInterrupt:
     log.debug("Detected CTRL+C, stopping robot")
     engine.stop()
-    log.exit("Robot stopped, Goodbye!")
-    sys.exit(0)
+
+total = time.time() - starttime
+log.info("Total time: "+str(total)+" seconds")
+log.exit("Robot stopped, Goodbye!")
+sys.exit(0)

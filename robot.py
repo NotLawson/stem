@@ -32,25 +32,25 @@ class Engine:
         self.move.off()
 
     def turn_left(self, percent = 50, speed = SPEED):
-        log.debug("[ENGINE] Turning left at"+str(percent)+"%")
-        speed = speed
-        percent = percent
-        self.move.on(motor.SpeedPercent(percent), motor.SpeedPercent(speed))
-
-    def hard_left(self, speed = SPEED):
-        log.debug("[ENGINE] Turning left at"+str(speed)+"%")
-        self.move.on(motor.SpeedPercent(-speed), motor.SpeedPercent(speed))
-
-    def turn_right(self, percent = 50, speed = SPEED):
-        log.debug("[ENGINE] Turning right at"+str(percent)+"%")
+        log.debug("[ENGINE] Turning left at "+str(percent)+"%")
         speed = speed
         percent = percent
         self.move.on(motor.SpeedPercent(speed), motor.SpeedPercent(percent))
 
-    def hard_right(self, speed = SPEED):
-        log.debug("[ENGINE] Turning right at"+str(speed)+"%")
-        speed = speed
+    def hard_left(self, speed = SPEED):
+        log.debug("[ENGINE] Turning left at "+str(speed)+"%")
         self.move.on(motor.SpeedPercent(speed), motor.SpeedPercent(-speed))
+
+    def turn_right(self, percent = 50, speed = SPEED):
+        log.debug("[ENGINE] Turning right at "+str(percent)+"%")
+        speed = speed
+        percent = percent
+        self.move.on(motor.SpeedPercent(percent), motor.SpeedPercent(speed))
+
+    def hard_right(self, speed = SPEED):
+        log.debug("[ENGINE] Turning right at "+str(speed)+"%")
+        speed = speed
+        self.move.on(motor.SpeedPercent(-speed), motor.SpeedPercent(speed))
 
 
 class LineFollowerSensors:
@@ -60,7 +60,60 @@ class LineFollowerSensors:
         
         with open("colours.pickle", "rb") as f:
             self.cal = pickle.load(f)
+
+        vals = {
+            "r": [],
+            "g": [],
+            "b": [],
+        }
+        for val in self.cal["green"]:
+            vals["r"].append(val[0])
+            vals["g"].append(val[1])
+            vals["b"].append(val[2])
+
+        green = {
+            "max": [max(vals["r"]), max(vals["g"]), max(vals["b"])],
+            "min": [min(vals["r"]), min(vals["g"]), min(vals["b"])],
+            "avg": [sum(vals["r"])/len(vals["r"]), sum(vals["g"])/len(vals["g"]), sum(vals["b"])/len(vals["b"])],
+        }
+
+        vals = {
+            "r": [],
+            "g": [],
+            "b": [],
+        }
+        for val in self.cal["black"]:
+            vals["r"].append(val[0])
+            vals["g"].append(val[1])
+            vals["b"].append(val[2])
+
+        black = {
+            "max": [max(vals["r"]), max(vals["g"]), max(vals["b"])],
+            "min": [min(vals["r"]), min(vals["g"]), min(vals["b"])],
+            "avg": [sum(vals["r"])/len(vals["r"]), sum(vals["g"])/len(vals["g"]), sum(vals["b"])/len(vals["b"])],
+        }
+
+        vals = {
+            "r": [],
+            "g": [],
+            "b": [],
+        }
+        for val in self.cal["white"]:
+            vals["r"].append(val[0])
+            vals["g"].append(val[1])
+            vals["b"].append(val[2])
+    
+        white = {
+            "max": [max(vals["r"]), max(vals["g"]), max(vals["b"])],
+            "min": [min(vals["r"]), min(vals["g"]), min(vals["b"])],
+            "avg": [sum(vals["r"])/len(vals["r"]), sum(vals["g"])/len(vals["g"]), sum(vals["b"])/len(vals["b"])],
+        }
         
+        self.cal = {
+            "black": black,
+            "green": green,
+            "white": white,
+        }
 
         self.leftsensor.mode = "COL-COLOR"
         self.rightsensor.mode = "COL-COLOR"
@@ -114,7 +167,11 @@ class LineFollowerSensors:
             return "string lmao"
     def left_raw(self):
         colour = self.leftsensor.raw
-        return colour        
+        return colour   
+
+    def left_reflect(self):
+        colour = self.leftsensor.reflected_light_intensity
+        return colour     
 
     def right(self):
         colour = self.rightsensor.color
@@ -125,7 +182,7 @@ class LineFollowerSensors:
         elif colour == 2: # Blue
             return "blue"
         elif colour == 3: # Green
-            return "gree"
+            return "green"
         elif colour == 4: # Yellow
             return "Yellow"
         elif colour == 5: # Red
@@ -146,7 +203,7 @@ class LineFollowerSensors:
         if raw[0] in range(self.cal["black"]["min"][0], self.cal["black"]["max"][0]) and raw[1] in range(self.cal["black"]["min"][1], self.cal["black"]["max"][1]) and raw[2] in range(self.cal["black"]["min"][2], self.cal["black"]["max"][2]):
             return "black"
         elif raw[0] in range(self.cal["green"]["min"][0], self.cal["green"]["max"][0]) and raw[1] in range(self.cal["green"]["min"][1], self.cal["green"]["max"][1]) and raw[2] in range(self.cal["green"]["min"][2], self.cal["green"]["max"][2]):
-            return "gree"
+            return "green"
         elif raw[0] in range(self.cal["white"]["min"][0], self.cal["white"]["max"][0]) and raw[1] in range(self.cal["white"]["min"][1], self.cal["white"]["max"][1]) and raw[2] in range(self.cal["white"]["min"][2], self.cal["white"]["max"][2]):
             return "white"
         else:
@@ -155,14 +212,18 @@ class LineFollowerSensors:
     def right2(self):
         raw = self.right_raw()
 
-        if raw[0] in range(self.cal["black"]["min"][0], self.cal["black"]["max"][0]) and raw[1] in range(self.cal["black"]["min"][1], self.cal["black"]["max"][1]) and raw[2] in range(self.cal["black"]["min"][2], self.cal["black"]["max"][2]):
+        if raw[0] in range(self.cal["black"]["avg"][0]-50, self.cal["black"]["avg"][0]+50) and raw[1] in range(self.cal["black"]["avg"][1]-50, self.cal["black"]["avg"][1]+50) and raw[2] in range(self.cal["black"]["avg"][2]-50, self.cal["black"]["avg"][2]+50):
             return "black"
-        elif raw[0] in range(self.cal["green"]["min"][0], self.cal["green"]["max"][0]) and raw[1] in range(self.cal["green"]["min"][1], self.cal["green"]["max"][1]) and raw[2] in range(self.cal["green"]["min"][2], self.cal["green"]["max"][2]):
-            return "gree"
-        elif raw[0] in range(self.cal["white"]["min"][0], self.cal["white"]["max"][0]) and raw[1] in range(self.cal["white"]["min"][1], self.cal["white"]["max"][1]) and raw[2] in range(self.cal["white"]["min"][2], self.cal["white"]["max"][2]):
+        elif raw[0] in range(self.cal["green"]["avg"][0]-50, self.cal["green"]["avg"][0]+50) and raw[1] in range(self.cal["green"]["avg"][1]-50, self.cal["green"]["avg"][1])+50 and raw[2] in range(self.cal["green"]["avg"][2]-50, self.cal["green"]["avg"][2]+50):
+            return "green"
+        elif raw[0] in range(self.cal["white"]["avg"][0]-50, self.cal["white"]["avg"][0]+50) and raw[1] in range(self.cal["white"]["avg"][1]-50, self.cal["white"]["avg"][1]+50) and raw[2] in range(self.cal["white"]["avg"][2]-50, self.cal["white"]["avg"][2]+50):
             return "white"
         else:
             return "None"
+    
+    def right_reflect(self):
+        colour = self.rightsensor.reflected_light_intensity
+        return colour
 
 
     

@@ -6,7 +6,7 @@ log.info("init sensors done")
 
 while True:
     try:
-        sys.stdout.write("L: "+str(sensors.left_raw())+"   R: "+str(sensors.right_raw())+"                 \r")
+        sys.stdout.write("L: "+str(sensors.left_reflect())+"   R: "+str(sensors.right_reflect())+"                 \r")
         time.sleep(0.1)
     except KeyboardInterrupt:
         break
