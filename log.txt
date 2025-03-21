@@ -1,2 +1,0 @@
-09:38:44 -- (INFO) test
-09:40:08 -- (DEBUG) Debug message
