@@ -39,7 +39,7 @@ try:
         right = sensors.right()
         if not log.DEBUG:
             sys.stdout.write("L: "+str(left)+"   R: "+str(right)+"     Time: "+str(int(time.time()-starttime))+"          \r")
-        
+        sys.stdout.flush()
         if (left == "green" and right == "green"):
             engine.stop()
             # finished
@@ -47,37 +47,11 @@ try:
             break
         elif left == "black":
             engine.stop()
-            r = sensors.left_reflect()
-            if (50 < r):
-                log.info("Silver strip detected")
-                # seen silver strip, orientate...
-                while True:
-                    if sensors.right_reflect() > 50:
-                        break
-                    engine.hard_left(1)
-                # orientated, exit loop
-                break
-                
-
             engine.hard_left(25)
             time.sleep(0.1)
             engine.start()
         elif right == "black":
             engine.stop()
-            r = sensors.right_reflect()
-            if (50 < r):
-                log.info("Silver strip detected")
-                # seen silver strip, orientate... 
-                if sensors.left_reflect() > 50:
-                        break
-                while True:
-                    if sensors.right_reflect() > 50:
-                        break
-                    engine.hard_left(1)
-                # orientated, exit loop
-                break
-
-             
             engine.hard_right(25)
             time.sleep(0.1)
             engine.start()
