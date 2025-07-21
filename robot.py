@@ -57,94 +57,10 @@ class LineFollowerSensors:
     def __init__(self, left, right):
         self.leftsensor = ColorSensor(left)
         self.rightsensor = ColorSensor(right)
-        
-        with open("colours.pickle", "rb") as f:
-            self.cal = pickle.load(f)
-
-        vals = {
-            "r": [],
-            "g": [],
-            "b": [],
-        }
-        for val in self.cal["green"]:
-            vals["r"].append(val[0])
-            vals["g"].append(val[1])
-            vals["b"].append(val[2])
-
-        green = {
-            "max": [max(vals["r"]), max(vals["g"]), max(vals["b"])],
-            "min": [min(vals["r"]), min(vals["g"]), min(vals["b"])],
-            "avg": [sum(vals["r"])/len(vals["r"]), sum(vals["g"])/len(vals["g"]), sum(vals["b"])/len(vals["b"])],
-        }
-
-        vals = {
-            "r": [],
-            "g": [],
-            "b": [],
-        }
-        for val in self.cal["black"]:
-            vals["r"].append(val[0])
-            vals["g"].append(val[1])
-            vals["b"].append(val[2])
-
-        black = {
-            "max": [max(vals["r"]), max(vals["g"]), max(vals["b"])],
-            "min": [min(vals["r"]), min(vals["g"]), min(vals["b"])],
-            "avg": [sum(vals["r"])/len(vals["r"]), sum(vals["g"])/len(vals["g"]), sum(vals["b"])/len(vals["b"])],
-        }
-
-        vals = {
-            "r": [],
-            "g": [],
-            "b": [],
-        }
-        for val in self.cal["white"]:
-            vals["r"].append(val[0])
-            vals["g"].append(val[1])
-            vals["b"].append(val[2])
-    
-        white = {
-            "max": [max(vals["r"]), max(vals["g"]), max(vals["b"])],
-            "min": [min(vals["r"]), min(vals["g"]), min(vals["b"])],
-            "avg": [sum(vals["r"])/len(vals["r"]), sum(vals["g"])/len(vals["g"]), sum(vals["b"])/len(vals["b"])],
-        }
-        
-        self.cal = {
-            "black": black,
-            "green": green,
-            "white": white,
-        }
 
         self.leftsensor.mode = "COL-COLOR"
         self.rightsensor.mode = "COL-COLOR"
-    '''
-    def left(self):
-        reflected_light = self.leftsensor.reflected_light_intensity
 
-        if reflected_light in range(40, 60): # dark green (22%)
-            return "green"
-        elif reflected_light in range(0, 25): # black (0%)
-            return "black"
-        elif reflected_light > 80: # white (100%)
-            return "white"
-    
-    def right(self):
-        reflected_light = self.rightsensor.reflected_light_intensity
-
-        if reflected_light in range(40, 60): # dark green (22%)
-            return "green"
-        elif reflected_light in range(0, 25): # black (0%)
-            return "black"
-        elif reflected_light > 80: # white (100%)
-            return "white"
-    
-    def left_raw(self):
-        return self.leftsensor.reflected_light_intensity
-    
-    def right_raw(self):
-        return self.rightsensor.reflected_light_intensity
-            
-    '''
     def left(self):
         colour = self.leftsensor.color
         if colour == 0: # No colour found
@@ -197,30 +113,6 @@ class LineFollowerSensors:
         colour = self.rightsensor.raw
         return colour    
 
-    def left2(self):
-        raw = self.left_raw()
-
-        if raw[0] in range(self.cal["black"]["min"][0], self.cal["black"]["max"][0]) and raw[1] in range(self.cal["black"]["min"][1], self.cal["black"]["max"][1]) and raw[2] in range(self.cal["black"]["min"][2], self.cal["black"]["max"][2]):
-            return "black"
-        elif raw[0] in range(self.cal["green"]["min"][0], self.cal["green"]["max"][0]) and raw[1] in range(self.cal["green"]["min"][1], self.cal["green"]["max"][1]) and raw[2] in range(self.cal["green"]["min"][2], self.cal["green"]["max"][2]):
-            return "green"
-        elif raw[0] in range(self.cal["white"]["min"][0], self.cal["white"]["max"][0]) and raw[1] in range(self.cal["white"]["min"][1], self.cal["white"]["max"][1]) and raw[2] in range(self.cal["white"]["min"][2], self.cal["white"]["max"][2]):
-            return "white"
-        else:
-            return "None"
-        
-    def right2(self):
-        raw = self.right_raw()
-
-        if raw[0] in range(self.cal["black"]["avg"][0]-50, self.cal["black"]["avg"][0]+50) and raw[1] in range(self.cal["black"]["avg"][1]-50, self.cal["black"]["avg"][1]+50) and raw[2] in range(self.cal["black"]["avg"][2]-50, self.cal["black"]["avg"][2]+50):
-            return "black"
-        elif raw[0] in range(self.cal["green"]["avg"][0]-50, self.cal["green"]["avg"][0]+50) and raw[1] in range(self.cal["green"]["avg"][1]-50, self.cal["green"]["avg"][1])+50 and raw[2] in range(self.cal["green"]["avg"][2]-50, self.cal["green"]["avg"][2]+50):
-            return "green"
-        elif raw[0] in range(self.cal["white"]["avg"][0]-50, self.cal["white"]["avg"][0]+50) and raw[1] in range(self.cal["white"]["avg"][1]-50, self.cal["white"]["avg"][1]+50) and raw[2] in range(self.cal["white"]["avg"][2]-50, self.cal["white"]["avg"][2]+50):
-            return "white"
-        else:
-            return "None"
-    
     def right_reflect(self):
         colour = self.rightsensor.reflected_light_intensity
         return colour

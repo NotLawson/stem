@@ -62,7 +62,13 @@ try:
             time.sleep(1)
             engine.stop()
             engine.start()
-
+        
+        log.info("Moved on to searching for spill victim")
+        # Okay, I was watching some videos of other robots in this challenge and saw this idea used
+        # When the robot detects the spill area, it will move out of conventional line following and search for the entrance to
+        # reorient itself before continueing to search for the victim.
+        # I'll work on a similar system, I reckon it's a good idea.
+        
 except KeyboardInterrupt:
     log.debug("Detected CTRL+C, stopping robot")
     engine.stop()
